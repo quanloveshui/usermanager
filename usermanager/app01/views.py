@@ -210,13 +210,23 @@ def handle_edit_classes(request):
     else:
         return redirect("index")
 
+@auth
 def handle_student(request):
-    is_login = request.session.get('is_login')
-    if is_login:
-        current_user = request.session.get('username')
-        return render(request, 'student.html', {'username': current_user})
-    else:
-        return redirect('/login')
+    if request.method == "GET":
+        # for i in range(1,100):
+        #     Student.objects.create(name='root' + str(i),
+        #                          email='root@live.com' + str(i),
+        #                          cls_id=i)
+        username = request.session.get("username")
+        # 封装类的方式实现分页
+        from utils.page import PagerHelper
+        current_page = request.GET.get('p', 1)
+        current_page = int(current_page)
+        total_count = Student.objects.all().count()
+        obj = PagerHelper(total_count, current_page, '/student', 10)
+        result = Student.objects.all()[obj.db_start:obj.db_end]
+        pager = obj.pager_str()
+        return render(request,'student.html',{'username':username,'result': result,'str_pager': pager})
 
 
 def handle_teacher(request):
