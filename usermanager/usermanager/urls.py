@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^login.html/', Login.as_view()),
     url(r'^add_classes', handle_add_classes),
     url(r'^edit_classes', handle_edit_classes),
+    url(r'^add_student', handle_add_student),
+    url(r'^edit_student', handle_edit_student),
 
 
 ]

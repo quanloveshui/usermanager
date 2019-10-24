@@ -210,6 +210,7 @@ def handle_edit_classes(request):
     else:
         return redirect("index")
 
+#查询学生信息
 @auth
 def handle_student(request):
     if request.method == "GET":
@@ -227,6 +228,38 @@ def handle_student(request):
         result = Student.objects.all()[obj.db_start:obj.db_end]
         pager = obj.pager_str()
         return render(request,'student.html',{'username':username,'result': result,'str_pager': pager})
+
+#添加学生信息
+@auth
+def handle_add_student(request):
+    if request.method == "GET":
+        cls_list = Classes.objects.all()[0: 10]
+        #print(cls_list)
+        return render(request,'add_student.html',{'cls_list': cls_list})
+    elif request.method == "POST":
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        cls_id = request.POST.get('cls_id')
+        #print(cls_id)
+        Student.objects.create(name=name,email=email,cls_id=cls_id)
+        return redirect('/student')
+
+
+#编辑学生信息
+@auth
+def handle_edit_student(request):
+    if request.method == "GET":
+        cls_list = Classes.objects.all()[0: 20]
+        nid = request.GET.get('nid')
+        obj = Student.objects.get(id=nid)
+        return render(request, 'edit_student.html', {'cls_list': cls_list, "obj": obj})
+    elif request.method == "POST":
+        nid = request.POST.get('id')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        cls_id = request.POST.get('cls_id')
+        Student.objects.filter(id=nid).update(name=name, email=email, cls_id=cls_id)
+        return redirect('/student')
 
 
 def handle_teacher(request):
