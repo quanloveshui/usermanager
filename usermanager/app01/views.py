@@ -110,7 +110,7 @@ def handle_classes(request):
 
         """
         '''初步实现分页功能
-        10:每页显示10条数据
+        10:每页显示10个页码
         current_page:当前页页码
         start：起始页码
         end: 结束页码
@@ -261,6 +261,16 @@ def handle_edit_student(request):
         Student.objects.filter(id=nid).update(name=name, email=email, cls_id=cls_id)
         return redirect('/student')
 
+#删除学生信息
+@auth
+def handle_dele_student(request):
+    if request.method == "GET":
+        nid = request.GET.get('nid')
+        #print(nid)
+        Student.objects.filter(id=nid).delete()
+        return redirect('/student')
+    else:
+        return redirect('/student')
 
 def handle_teacher(request):
     is_login = request.session.get('is_login')

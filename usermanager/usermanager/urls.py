@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^edit_classes', handle_edit_classes),
     url(r'^add_student', handle_add_student),
     url(r'^edit_student', handle_edit_student),
+    url(r'^dele_student', handle_dele_student),
 
 
 ]
