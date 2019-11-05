@@ -272,11 +272,119 @@ def handle_dele_student(request):
     else:
         return redirect('/student')
 
+#查询老师信息
+@auth
 def handle_teacher(request):
-    is_login = request.session.get('is_login')
-    if is_login:
-        current_user = request.session.get('username')
-        return render(request, 'teacher.html', {'username': current_user})
-    else:
-        return redirect('/login')
+    current_user = request.session.get('username')
+    # 方式一:查询数据库次数比较多
+    # teacher_list = Teacher.objects.all()
+    # for i in teacher_list:
+    #     print(i.id,i.name,i.cls.all())
+    #return render(request, 'teacher.html', {'username': current_user, "teacher_list": teacher_list})
 
+    #方式二：次方式比较好，数据库查询次数少
+    #teacher_list = Teacher.objects.filter(id__in=Teacher.objects.all()[0:5]).values('id', 'name', 'cls__id', 'cls__caption')
+    teacher_list = Teacher.objects.filter(id__in=Teacher.objects.all()).values('id', 'name', 'cls__id', 'cls__caption')
+    """
+    #定义字典存放查询出来信息
+    result = {
+        1: {
+            'nid': 1,
+            'name': '王老师',
+            'cls_list':[
+                {'id': 1, 'caption': "一班"},
+                {'id': 2, 'caption': "二班"}
+            ]
+        },
+        2: {
+            'nid': 2,
+            'name': '张老师',
+            'cls_list': [
+                {'id': 1, 'caption': "二班"},
+                {'id': 5, 'caption': "三班"}
+            ]
+        }
+    }
+    #也可以定义类实现，后面完善
+    # class Node:
+    #     def __init__(self,nid,name):
+    #         self.nid = nid
+    #         self.name = name
+    #         self.cls_list = []
+    """
+
+    result = {}
+    for t in teacher_list:
+        #print(t['id'],t['name'],t['cls__id'],t['cls__caption'])
+        if t['id'] in result:
+            if t['cls__id']:
+                result[t['id']]['cls_list'].append({'id': t['cls__id'], 'caption': t['cls__caption']})
+        else:
+            if t['cls__id']:
+                temp = [{'id': t['cls__id'], 'caption': t['cls__caption']}, ]
+            else:
+                temp = []
+            result[t['id']] = {
+                'nid': t['id'],
+                'name': t['name'],
+                'cls_list': temp
+            }
+
+    return render(request, 'teacher.html', {'username': current_user, "teacher_list": result})
+
+#添加老师信息
+@auth
+def handle_add_teacher(request):
+    if request.method == "GET":
+        cls_list = Classes.objects.all()
+        #print(cls_list)
+        return render(request,'add_teacher.html',{'cls_list':cls_list})
+    elif request.method == "POST":
+        name = request.POST.get('name')
+        cls = request.POST.getlist('cls') #['3', '4']
+        #print(name)
+        #print(cls)
+        #创建老师
+        obj = Teacher.objects.create(name=name)
+        #创建老师和班级的对应关系
+        obj.cls.add(*cls)
+        return redirect('/teacher')
+
+#编辑老师信息
+@auth
+def handle_edit_teacher(request,nid):
+    if request.method == "GET":
+        #获取当前老师信息
+        obj = Teacher.objects.get(id=nid)
+        # 获取当前老师对应的所有班级 <QuerySet [(1,), (3,), (6,)]>
+        #obj_cls_list = obj.cls.all().values_list('id')
+        obj_cls_list=obj.cls.all().values_list()   #
+        #print(obj_cls_list)
+        # <QuerySet [(1, '一班'), (3, '三班'), (6, '六班')]>
+        id_list = list(zip(*obj_cls_list))[0]
+        #print(id_list) #(1, 3, 6)
+        #获取所有的班级
+        cls_list = Classes.objects.all()
+        return render(request, 'edit_teacher.html', {'obj': obj, "cls_list": cls_list, "id_list": id_list})
+    elif request.method == "POST":
+        # nid = request.POST.get('nid')
+        name = request.POST.get('name')
+        cls_li = request.POST.getlist('cls')
+        obj = Teacher.objects.get(id=nid)
+        obj.name = name
+        obj.save()
+        #更新对应班级信息，使用set()时，更新对象为多个时，不用在列表前加*，使用set更新时是先清空在添加
+        obj.cls.set(cls_li)
+
+        return redirect('/teacher')
+
+#删除老师信息
+@auth
+def handle_dele_teacher(request):
+    if request.method == "GET":
+        nid = request.GET.get('nid')
+        #print(nid)
+        Teacher.objects.filter(id=nid).delete()
+        return redirect('/teacher')
+    else:
+        return redirect('/teacher')

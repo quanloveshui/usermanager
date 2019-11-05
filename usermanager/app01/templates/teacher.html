@@ -1,11 +1,64 @@
 {% extends "base.html" %}
 
 {% block css %}
+ <style>
+        .tag{
+            display: inline-block;
+            padding: 5px;
+            border: 1px solid red;
+            background-color: lightpink;
+            cursor: pointer;
+        }
+    </style>
 
 {% endblock %}
 
 {% block content %}
-老师列表
+ <!--<h1>老师列表</h1>-->
+    <!--<table border="1">-->
+        <!--<thead></thead>-->
+        <!--<tbody>-->
+            <!--{% for obj in teacher_list %}-->
+                <!--<tr>-->
+                    <!--<td>{{ obj.id }}</td>-->
+                    <!--<td>{{ obj.name }}</td>-->
+                    <!--<td>-->
+                        <!--{% for c in obj.cls.all %}-->
+                            <!--<span class="tag" nid="{{ c.id }}">{{ c.caption }}</span>-->
+                        <!--{% endfor %}-->
+                    <!--</td>-->
+                <!--</tr>-->
+            <!--{% endfor %}-->
+        <!--</tbody>-->
+    <!--</table>-->
+
+
+<h1>老师列表</h1>
+    <div>
+        <a href="/add_teacher">添加</a>
+    </div>
+    <table border="1">
+        <thead></thead>
+        <tbody>
+
+            {% for dic in teacher_list.values %}
+                <tr>
+                    <td>{{ dic.nid }}</td>
+                    <td>{{ dic.name }}</td>
+                    <td>
+                        {% for c in dic.cls_list %}
+                            <span class="tag" nid="{{ c.id }}">{{ c.caption }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a href="/edit_teacher-{{ dic.nid }}">编辑</a> <a href="/dele_teacher?nid={{ dic.nid }}">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
 {% endblock %}
 
 
