@@ -349,8 +349,8 @@ def handle_add_teacher(request):
         #创建老师和班级的对应关系
         obj.cls.add(*cls)
         return redirect('/teacher')
-
-#编辑老师信息
+"""
+#编辑老师信息 方式一
 @auth
 def handle_edit_teacher(request,nid):
     if request.method == "GET":
@@ -374,6 +374,44 @@ def handle_edit_teacher(request,nid):
         obj.name = name
         obj.save()
         #更新对应班级信息，使用set()时，更新对象为多个时，不用在列表前加*，使用set更新时是先清空在添加
+        obj.cls.set(cls_li)
+        return redirect('/teacher')
+
+"""
+
+#编辑老师信息 方式二：有左右选择框
+def handle_edit_teacher(request,nid):
+    # 获取当前老师信息
+    # 获取当前老师对应的所有班级
+    # - 获取所有的班级
+    # - 获取当前老师未对应的所有班级
+    if request.method == "GET":
+        # 当前老师的信息
+        obj = Teacher.objects.get(id=nid)
+        # 获取当前老师已经管理的所有班级
+        # <QuerySet [(2, '二1班'), (3, '三班')]>
+        obj_cls_list = obj.cls.all().values_list('id', 'caption')
+        # 已经管理的班级的ID列表,如果老师没有管理班级为空列表
+        id_list = list(zip(*obj_cls_list))[0] if obj_cls_list else []
+        # # [1,2,3]
+        # 获取未管理的班级，
+        # cls_list = Classes.objects.filter(id__in=id_list)
+        cls_list = Classes.objects.exclude(id__in=id_list)
+        #print(cls_list[0].id,cls_list[0].caption)  1 一班
+        return render(request, 'edit_teacher.html', {'obj': obj,
+                                                     'obj_cls_list': obj_cls_list,
+                                                     "cls_list": cls_list,
+                                                     "id_list": id_list
+                                                     })
+    elif request.method == "POST":
+        # nid = request.POST.get('nid')
+        name = request.POST.get('name')
+        cls_li = request.POST.getlist('cls')
+        #print(cls_li)
+        obj = Teacher.objects.get(id=nid)
+        obj.name = name
+        obj.save()
+        #使用set()时，更新对象为多个时，不用在列表前加*，使用set更新时是先清空在添加
         obj.cls.set(cls_li)
 
         return redirect('/teacher')

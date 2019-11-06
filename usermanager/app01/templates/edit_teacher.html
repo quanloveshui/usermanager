@@ -6,25 +6,33 @@
 
 
 {% block content %}
-    <h1>编辑老师</h1>
+   <h1>编辑老师</h1>
     <form action="/edit_teacher-{{ obj.id }}" method="POST">
         <input style="display: none" type="text" id="nid" value="{{ obj.id }}" />
         <p>
             老师姓名：<input name="name" type="text" value="{{ obj.name }}" />
         </p>
         <p>
-            班级：
-            <select name="cls" multiple>
+
+            已管理班级
+            <select id="sel" name="cls" multiple>
+                {% for row in obj_cls_list %}
+                    <option value="{{ row.0 }}">{{ row.1 }}</option>
+                {% endfor %}
+            </select>
+
+            未管理班级：
+            <select id="none" multiple>
                 {% for row in cls_list %}
-                    {% if row.id in id_list %}
-                        <option value="{{ row.id }}" selected="selected">{{ row.caption }}</option>
-                    {% else %}
-                        <option value="{{ row.id }}">{{ row.caption }}</option>
-                    {% endif %}
+                    <option value="{{ row.id }}">{{ row.caption }}</option>
                 {% endfor %}
             </select>
         </p>
-        <input type="submit" value="提交" />
+        <div>
+            <a id="removeCls"> >> </a>
+            <a id="addCls"> << </a>
+        </div>
+        <input id="submit_form" type="submit" value="提交" />
     </form>
 {% endblock %}
 
@@ -33,6 +41,44 @@
     <script>
         $(function () {
             $('#menu_teacher').addClass('active');
+            bindRemoveCls();
+            bindAddCls();
+            bindSubmitForm();
         })
+
+        /*
+        jQuery对象和DOM对象相互转换
+        DOM    -->  jQuery ：只需用$()把DOM对象包起来即可
+        jQuery -->  DOM:jQuery对象是一个类似数组的对象，可以通过[index]方法得到相应的DOM对象  $('#sel')[0]
+        */
+
+        function bindSubmitForm(){
+            $('#submit_form').click(function () {
+                // 提交到后台前让select中的全选中
+                $('#sel').children().each(function () {
+                    $(this).prop('selected', true);
+                })
+            })
+        }
+
+        function bindRemoveCls() {
+            $('#removeCls').click(function () {
+                var options = $('#sel')[0].selectedOptions;
+                while(options.length>0){
+                    $(options[0]).appendTo('#none');
+                }
+
+            })
+        }
+
+        function bindAddCls() {
+            $('#addCls').click(function () {
+                var options = $('#none')[0].selectedOptions;
+                while(options.length>0){
+                    $(options[0]).appendTo('#sel');
+                }
+
+            })
+        }
     </script>
 {% endblock %}
