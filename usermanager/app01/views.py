@@ -14,6 +14,7 @@ from django import views
 from django.utils.decorators import method_decorator
 import json
 from django.utils.safestring import mark_safe
+import os
 
 #CBV方式
 class Login(views.View):
@@ -426,3 +427,24 @@ def handle_dele_teacher(request):
         return redirect('/teacher')
     else:
         return redirect('/teacher')
+
+
+def upload(request):
+    if request.method == "GET":
+        img_list = Img.objects.all()
+        return render(request,"upload.html",{'img_list': img_list})
+    elif request.method == "POST":
+        #对于上传的文件需要通过request.FILES["txt"]或者request.FILES.get("txt", None)来访问，上传的文件是保存在FILES这个字典中的
+        obj = request.FILES.get('img',None)
+        if not obj:
+            return HttpResponse("no files for upload!")
+        file_path =  os.path.join('static','upload',obj.name)
+        f = open(os.path.join('app01','static','upload',obj.name), 'wb')
+        for chunk in obj.chunks():
+            f.write(chunk)
+        f.close()
+        Img.objects.create(path=file_path)
+        #return redirect('/upload')
+        #通过ajax上传处理
+        ret = {'status': True, 'path': file_path}
+        return HttpResponse(json.dumps(ret))

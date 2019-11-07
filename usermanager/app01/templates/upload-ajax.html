@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+     <style>
+        .container img{
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+
+</head>
+<body>
+    <script src="/static/jquery-3.1.1.js"></script>
+
+    <input type="file" id="img" />
+    <input type="button" value="提交XML" onclick="UploadXML()" />
+    <input type="button" value="提交JQ" onclick="Uploadjq()" />
+
+ <h1>图片列表</h1>
+    <div class="container" id="imgs">
+        {% for img in img_list %}
+            <img src="/{{ img.path }}">
+        {% endfor %}
+    </div>
+
+
+
+<script>
+    //原生ajax  上传文件需要使用FormData. FormData用来获取表单数据，方便进行提交数据.添加数据使用append方法
+     function UploadXML() {
+            var dic = new FormData();
+            dic.append('img', document.getElementById('img').files[0]);
+            var xml = new XMLHttpRequest();
+            xml.open('post', '/upload', true);
+            xml.onreadystatechange = function () {
+                if(xml.readyState == 4){
+                    var obj = JSON.parse(xml.responseText);
+                    if(obj.status){
+                        var img = document.createElement('img');
+                        img.src = "/" + obj.path;
+                        document.getElementById("imgs").appendChild(img);
+                    }
+                }
+            };
+            xml.send(dic);
+        }
+
+     //jquery ajax
+      function Uploadjq() {
+            var dic = new FormData();
+            dic.append('img', document.getElementById('img').files[0]);
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: dic,
+                processData: false,  // 告诉jQuery不要去处理发送的数据
+                contentType: false,  //  告诉jQuery不要去设置Content-Type请求头   一定要设置jquery中不处理数据，不设置内容类型，否则报错
+                dataType: 'JSON',
+                success: function (arg) { //成功回调
+                    if (arg.status){
+                        var img = document.createElement('img');
+                        img.src = "/" + arg.path;
+                        $('#imgs').append(img); //把图片路径添加到img标签的src
+                    }
+                }
+            })
+        }
+
+</script>
+
+
+</body>
+</html>

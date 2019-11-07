@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^add_teacher', handle_add_teacher),
     url(r'^edit_teacher-(\d+)', handle_edit_teacher),
     url(r'^dele_teacher', handle_dele_teacher),
+    url(r'^upload', upload),
 
 
 

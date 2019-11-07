@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+     <style>
+        .container img{
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+
+</head>
+<body>
+    <script src="/static/jquery-3.1.1.js"></script>
+
+     <h1>测试Iframe功能</h1>
+    <iframe  id="ifr" src=""></iframe>
+    <input type="text" id="url" />
+    <input type="button" value="点我" onclick="iframeChange();" />
+
+    <hr/>
+    <h1>基于iframe实现form提交</h1>
+    <form action="/upload.html" method="post" target="iframe_1" enctype="multipart/form-data">
+        <iframe  id="iframe_1" name="iframe_1" src="" onload="loadIframe();"></iframe>
+        <input type="file" name="img" />
+        <input type="submit" />
+    </form>
+
+ <h1>图片列表</h1>
+    <div class="container" id="imgs">
+        {% for img in img_list %}
+            <img src="/{{ img.path }}">
+        {% endfor %}
+    </div>
+
+
+
+<script>
+
+    function  iframeChange() {
+            var url = $('#url').val();
+            $('#ifr').attr('src', url);
+        }
+
+   function loadIframe() {
+
+            // 获取iframe内部的内容  {"status": true, "path": "static\\upload\\719d372b2b447fea0cb688887f51f354.jpg"}
+            var str_json = $('#iframe_1').contents().find('body').text();
+            var obj = JSON.parse(str_json);
+            if (obj.status){
+                var img = document.createElement('img');
+                img.src = "/" + obj.path;
+                $('#imgs').append(img);
+            }
+        }
+
+</script>
+
+
+</body>
+</html>
