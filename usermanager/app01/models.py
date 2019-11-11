@@ -20,3 +20,15 @@ class Administrator(models.Model):
 
 class Img(models.Model):
     path = models.CharField(max_length=128)
+
+
+class Province(models.Model):
+    name = models.CharField(max_length=32)
+
+class City(models.Model):
+    name = models.CharField(max_length=32)
+    pro = models.ForeignKey("Province",on_delete=models.CASCADE)
+
+class Xian(models.Model):
+    name = models.CharField(max_length=32)
+    cy = models.ForeignKey("City",on_delete=models.CASCADE)

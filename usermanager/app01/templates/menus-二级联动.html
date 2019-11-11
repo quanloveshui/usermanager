@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+  <h1>二级联动</h1>
+    <select id="province">
+        <option value="-1">请选择省份</option>
+        {% for p in pro_list %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select id="city">
+        <option value="-1">请选择市</option>
+    </select>
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+    $(function () {
+            bindProvinceEvent();
+            bindCityEvent()
+        });
+
+    function bindProvinceEvent(){
+            $('#province').change(function () {
+                /*获取选中省份的id*/
+                var v = $(this).val();
+                if(v == '-1'){
+
+                }else{
+
+                    //获取option的值方式：例如获取第一个值 $('#test option:first').val()
+                    //清空city中option的值
+                    $('#city option:gt(0)').remove();
+                    $.ajax({
+                        url: '/fetch_city',
+                        type: 'GET',
+                        data: {'province_id': v},
+                        dataType: 'json',
+                        success: function (arg) {
+                            $.each(arg, function(k,v){
+                                var city_id =  v.pk;
+                                var city_name = v.fields.name;
+                                var tag = document.createElement('option');
+                                tag.innerHTML = city_name;
+                                tag.setAttribute('value', city_id);
+                                $('#city').append(tag);
+                            });
+                        }
+                    })
+                }
+            })
+        }
+
+
+
+
+</script>
+
+{% endblock %}

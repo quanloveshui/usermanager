@@ -38,6 +38,9 @@ urlpatterns = [
     url(r'^edit_teacher-(\d+)', handle_edit_teacher),
     url(r'^dele_teacher', handle_dele_teacher),
     url(r'^upload', upload),
+    url(r'^menu', menu),
+    url(r'^fetch_city', fetch_city),
+    url(r'^fetch_xian', fetch_xian),
 
 
 

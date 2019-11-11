@@ -448,3 +448,61 @@ def upload(request):
         #通过ajax上传处理
         ret = {'status': True, 'path': file_path}
         return HttpResponse(json.dumps(ret))
+
+
+def menu(request):
+    pro_list = Province.objects.all()
+    return render(request,'menus.html',{'pro_list':pro_list})
+
+"""
+二级联动
+def fetch_city(request):
+    # 根据用户传入的省份ID，获取与其相关的所有市ID
+    # ret = {'status': True, 'error': None, 'data': None}
+
+    province_id = request.GET.get('province_id')
+    result = City.objects.filter(pro_id=province_id)
+    #print(result)
+    # QuerySet内部放置对象
+    from django.core import serializers
+    data = serializers.serialize("json", result)
+    #[{"model": "app01.city", "pk": 1, "fields": {"name": "\u6d66\u4e1c", "pro": 1}}, {"model": "app01.city", "pk": 2, "fields": {"name": "\u6d66\u897f", "pro": 1}}]
+    #print(data)
+
+    return HttpResponse(data)
+"""
+
+#三级联动
+def fetch_city(request):
+    # 根据用户传入的省份ID，获取与其相关的所有市ID
+    # ret = {'status': True, 'error': None, 'data': None}
+
+    province_id = request.GET.get('province_id')
+    # result = models.City.objects.filter(pro_id=province_id)
+    # # QuerySet内部放置对象
+    # from django.core import serializers
+    # data = serializers.serialize("json", result)
+
+    result = City.objects.filter(pro_id=province_id).values('id','name')
+    # QuerySet内部放置对象
+    result = list(result)
+    data = json.dumps(result)
+
+    # result = models.City.objects.filter(pro_id=province_id).values_list('id','name')
+    # # QuerySet内部放置对象
+    # print(result)
+    # result = list(result)
+    # import json
+    # data = json.dumps(result)
+
+    return HttpResponse(data)
+
+def fetch_xian(request):
+    # for i in range(10):
+    #     models.Xian.objects.create(name='县'+ str(i), cy_id=1)
+    city_id = request.GET.get('city_id')
+    xian_list = Xian.objects.filter(cy_id=city_id).values('id','name')
+    xian_list = list(xian_list)
+    return HttpResponse(json.dumps(xian_list))
+
+
